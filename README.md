@@ -47,6 +47,18 @@ To install the plugin using Composer:
 2. Run `composer require syntaxera/cakephp-sparkpost-plugin` to download the plugin and its dependencies.
 3. If you'd like, open `composer.json` for editing and modify the versioning schema for the plugin to your liking.
 
+### Finding a HTTP client
+
+We are not coupled to any specific HTTP client. You need to install one yourself. Read the 
+[HTTPlug documentation](http://docs.php-http.org/en/latest/httplug/users.html) and choose a client 
+from [this list](https://packagist.org/providers/php-http/client-implementation). 
+
+To be on the safe side you need Guzzle and MessageFactories that creates a PSR-7 request. 
+
+```bash
+$ composer require php-http/guzzle6-adapter php-http/message
+```
+
 ## Manual Installation
 You can also install the plugin manually by clicking the "Download ZIP" button above and unzipping it into your CakePHP
 application's `plugins/` directory, **however if you do this you will have to perform updates manually as well.**

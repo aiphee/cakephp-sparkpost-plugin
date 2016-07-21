@@ -21,9 +21,7 @@ use Cake\Core\Configure;
 use Cake\Mailer\AbstractTransport;
 use Cake\Mailer\Email;
 use Cake\Network\Exception\BadRequestException;
-use Http\Client\Curl\Client;
-use Http\Discovery\MessageFactoryDiscovery;
-use Http\Discovery\StreamFactoryDiscovery;
+use Http\Discovery\HttpClientDiscovery;
 use SparkPost\SparkPost;
 use SparkPost\SparkPostException;
 
@@ -49,7 +47,7 @@ class SparkPostTransport extends AbstractTransport
         $apiKey = $this->config('apiKey');
 
         // Set up HTTP request adapter
-        $client = new Client(MessageFactoryDiscovery::find(), StreamFactoryDiscovery::find());
+        $client = HttpClientDiscovery::find();
 
         // Create SparkPost API accessor
         $sparkpost = new SparkPost($client, [ 'async' => false, 'key' => $apiKey ]);
