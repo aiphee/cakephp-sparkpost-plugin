@@ -56,6 +56,7 @@ class SparkPostTransport extends AbstractTransport
         $from = (array) $email->from();
         $sender = sprintf('%s <%s>', mb_encode_mimeheader(array_values($from)[0]), array_keys($from)[0]);
         $to = (array) $email->to();
+        $replyTo = $email->getReplyTo() ? array_values($email->getReplyTo())[0] : null;
         
         foreach ($to as $toEmail => $toName) {
             $recipients[] = ['address' => [ 'name' => mb_encode_mimeheader($toName), 'email' => $toEmail]];
@@ -69,6 +70,10 @@ class SparkPostTransport extends AbstractTransport
             'subject' => mb_decode_mimeheader($email->subject()),
             'recipients' => $recipients
         ];
+        
+        if ($replyTo) {
+	    $message['replyTo'] = $replyTo;
+	}
 
         // Send message
         try {
