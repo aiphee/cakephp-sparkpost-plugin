@@ -70,6 +70,14 @@ class SparkPostTransport extends AbstractTransport
             'subject' => mb_decode_mimeheader($email->subject()),
             'recipients' => $recipients
         ];
+	    
+	    foreach ($email->getAttachments() as $name => $data) {
+			$message['attachments'][] = [
+				'name' => $name,
+				'type' => $data['mimetype'],
+				'data' => base64_encode(file_get_contents($data['file']))
+			];
+        }
         
         if ($replyTo) {
 	    $message['replyTo'] = $replyTo;
