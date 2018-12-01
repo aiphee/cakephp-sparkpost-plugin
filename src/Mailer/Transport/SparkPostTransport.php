@@ -20,11 +20,11 @@ namespace SparkPost\Mailer\Transport;
 use Cake\Core\Configure;
 use Cake\Mailer\AbstractTransport;
 use Cake\Mailer\Email;
-use Cake\Network\Exception\BadRequestException;
-use Cake\Network\Http\Client;
+use GuzzleHttp\Client;
 use Ivory\HttpAdapter\CakeHttpAdapter;
 use SparkPost\APIResponseException;
 use SparkPost\SparkPost;
+use Http\Adapter\Guzzle6\Client as GuzzleAdapter;
 
 /**
  * Spark Post Transport Class
@@ -47,10 +47,16 @@ class SparkPostTransport extends AbstractTransport
 		$apiKey = $this->config('apiKey');
 
 		// Set up HTTP request adapter
-		$adapter = new CakeHttpAdapter(new Client());
+		$adapter = new GuzzleAdapter(new Client());
 
 		// Create SparkPost API accessor
-		$sparkpost = new SparkPost($adapter, [ 'key' => $apiKey ]);
+		$sparkpost = new SparkPost(
+			$adapter,
+			[
+				'key' => $apiKey,
+				'async' => false
+			]
+		);
 
 		// Pre-process CakePHP email object fields
 		$to = $email->getTo();
@@ -95,7 +101,7 @@ class SparkPostTransport extends AbstractTransport
 
 		// Send message
 		try {
-			$sparkpost->transmission->send($message);
+			$sparkpost->transmissions->post($message);
 		} catch(APIResponseException $e) {
 			// TODO: Determine if BRE is the best exception type
 			throw new BadRequestException(sprintf('SparkPost API error %d (%d): %s (%s)',
