@@ -19,7 +19,7 @@
   "license": [ "MIT" ],
   "require": {
     "cakephp/cakephp": "~3.0",
-    "sparkpost/php-sparkpost": "~2.0"
+    "sparkpost/sparkpost": "~2.0"
   },
   "require-dev": {
     "phpunit/phpunit": "~5.3",
