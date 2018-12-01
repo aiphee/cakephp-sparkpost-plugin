@@ -35,61 +35,71 @@ use SparkPost\SparkPost;
  */
 class SparkPostTransport extends AbstractTransport
 {
-    /**
-     * Send mail via SparkPost REST API
-     *
-     * @param \Cake\Mailer\Email $email Email message
-     * @return array
-     */
-    public function send(Email $email)
-    {
-        // Load SparkPost configuration settings
-        $apiKey = $this->config('apiKey');
+	/**
+	 * Send mail via SparkPost REST API
+	 *
+	 * @param \Cake\Mailer\Email $email Email message
+	 * @return array
+	 */
+	public function send(Email $email)
+	{
+		// Load SparkPost configuration settings
+		$apiKey = $this->config('apiKey');
 
-        // Set up HTTP request adapter
-        $adapter = new CakeHttpAdapter(new Client());
+		// Set up HTTP request adapter
+		$adapter = new CakeHttpAdapter(new Client());
 
-        // Create SparkPost API accessor
-        $sparkpost = new SparkPost($adapter, [ 'key' => $apiKey ]);
+		// Create SparkPost API accessor
+		$sparkpost = new SparkPost($adapter, [ 'key' => $apiKey ]);
 
-        // Pre-process CakePHP email object fields
-        $from = (array) $email->from();
-        $sender = sprintf('%s <%s>', mb_encode_mimeheader(array_values($from)[0]), array_keys($from)[0]);
-        $to = (array) $email->to();
-        $replyTo = $email->getReplyTo() ? array_values($email->getReplyTo())[0] : null;
-        
-        foreach ($to as $toEmail => $toName) {
-            $recipients[] = ['address' => [ 'name' => mb_encode_mimeheader($toName), 'email' => $toEmail]];
-        }
+		// Pre-process CakePHP email object fields
+		$to = $email->getTo();
 
-        // Build message to send
-        $message = [
-            'from' => $sender,
-            'html' => empty($email->message('html')) ? $email->message('text') : $email->message('html'),
-            'text' => $email->message('text'),
-            'subject' => mb_decode_mimeheader($email->subject()),
-            'recipients' => $recipients
-        ];
-	    
-	    foreach ($email->getAttachments() as $name => $data) {
+		foreach ($to as $toEmail => $toName) {
+			$recipients[] = [
+				'address' => [
+					'name' => mb_encode_mimeheader($toName),
+					'email' => $toEmail
+				]
+			];
+		}
+
+		// Build message to send
+		$message = [
+			'content' => [
+				$email->getEmailFormat() => $email->message($email->getEmailFormat()),
+				'text' => $email->message('text'),
+				'subject' => mb_decode_mimeheader($email->subject()),
+			],
+			'recipients' => $recipients
+		];
+
+		foreach ($email->getFrom() as $mail => $name) {
+			$message['content']['from'] = [
+				'name' => mb_encode_mimeheader($name),
+				'email' => $mail,
+			];
+		}
+
+		foreach ($email->getReplyTo() as  $mail => $name) {
+			$message['content']['reply_to'] = $mail;
+		}
+
+		foreach ($email->getAttachments() as $name => $data) {
 			$message['attachments'][] = [
 				'name' => $name,
 				'type' => $data['mimetype'],
 				'data' => base64_encode(file_get_contents($data['file']))
 			];
-        }
-        
-        if ($replyTo) {
-	    $message['replyTo'] = $replyTo;
-	}
+		}
 
-        // Send message
-        try {
-            $sparkpost->transmission->send($message);
-        } catch(APIResponseException $e) {
-            // TODO: Determine if BRE is the best exception type
-            throw new BadRequestException(sprintf('SparkPost API error %d (%d): %s (%s)',
-                $e->getAPICode(), $e->getCode(), ucfirst($e->getAPIMessage()), $e->getAPIDescription()));
-        }
-    }
+		// Send message
+		try {
+			$sparkpost->transmission->send($message);
+		} catch(APIResponseException $e) {
+			// TODO: Determine if BRE is the best exception type
+			throw new BadRequestException(sprintf('SparkPost API error %d (%d): %s (%s)',
+				$e->getAPICode(), $e->getCode(), ucfirst($e->getAPIMessage()), $e->getAPIDescription()));
+		}
+	}
 }
