@@ -1,5 +1,5 @@
 {
-  "name": "syntaxera/cakephp-sparkpost-plugin",
+  "name": "aiphee/cakephp-sparkpost-plugin",
   "description": "A CakePHP plugin for sending mail via SparkPost's REST API",
   "type": "cakephp-plugin",
   "authors": [{
