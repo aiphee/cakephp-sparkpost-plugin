@@ -92,7 +92,13 @@ class SparkPostTransport extends AbstractTransport
 		}
 
 		foreach ($email->getAttachments() as $name => $data) {
-			$message['attachments'][] = [
+            if (in_array($data['mimetype'], ['image/jpeg', 'image/png'])) {
+                $key = 'inline_images';
+            } else {
+                $key = 'attachments';
+            }
+
+            $message['content'][$key][] = [
 				'name' => $name,
 				'type' => $data['mimetype'],
 				'data' => base64_encode(file_get_contents($data['file']))
