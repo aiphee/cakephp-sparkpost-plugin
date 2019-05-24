@@ -70,6 +70,17 @@ class SparkPostTransport extends AbstractTransport
 			];
 		}
 
+		$bcc = $email->getBcc();
+
+		foreach ($bcc as $bccMail) {
+			$recipients[] = [
+				'address' => [
+					'email' => $bccMail,
+					'header_to' => $toEmail
+				]
+			];
+		}
+
 		// Build message to send
 		$message = [
 			'content' => [
