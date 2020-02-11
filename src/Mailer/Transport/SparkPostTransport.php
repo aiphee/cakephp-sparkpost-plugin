@@ -96,6 +96,7 @@ class SparkPostTransport extends AbstractTransport
 				'name' => mb_encode_mimeheader($name),
 				'email' => $mail,
 			];
+            //$message['return_path'] = $mail;
 		}
 
 		foreach ($email->getReplyTo() as  $mail => $name) {
@@ -118,7 +119,7 @@ class SparkPostTransport extends AbstractTransport
 
 		// Send message
 		try {
-			$sparkpost->transmissions->post($message);
+			return $sparkpost->transmissions->post($message);
 		} catch(APIResponseException $e) {
 			// TODO: Determine if BRE is the best exception type
 			throw new BadRequestException(sprintf('SparkPost API error %d (%d): %s (%s)',
