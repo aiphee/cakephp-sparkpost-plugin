@@ -44,7 +44,7 @@ class SparkPostTransport extends AbstractTransport
 	public function send(Email $email)
 	{
 		// Load SparkPost configuration settings
-		$apiKey = $this->setConfig('apiKey');
+		$apiKey = $this->getConfig('apiKey');
 
 		// Set up HTTP request adapter
 		$adapter = new GuzzleAdapter(new Client());
