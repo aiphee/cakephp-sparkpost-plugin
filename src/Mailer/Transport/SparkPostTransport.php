@@ -44,7 +44,7 @@ class SparkPostTransport extends AbstractTransport
 	public function send(Email $email)
 	{
 		// Load SparkPost configuration settings
-		$apiKey = $this->config('apiKey');
+		$apiKey = $this->setConfig('apiKey');
 
 		// Set up HTTP request adapter
 		$adapter = new GuzzleAdapter(new Client());
@@ -86,7 +86,7 @@ class SparkPostTransport extends AbstractTransport
 			'content' => [
 				$email->getEmailFormat() => $email->message($email->getEmailFormat()),
 				'text' => $email->message('text'),
-				'subject' => mb_decode_mimeheader($email->subject()),
+				'subject' => mb_decode_mimeheader($email->getSubject()),
 			],
 			'recipients' => $recipients
 		];
